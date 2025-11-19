@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.3] - 2025-11-19
+
+### Fixed
+
+- **SSE Connection Routing**: Fixed 406 errors for SSE clients with non-standard Accept headers
+  - Changed GET /mcp routing logic to default to SSE transport for any sessionless request
+  - Previously rejected clients sending `Accept: */*` instead of `Accept: text/event-stream`
+  - Now properly supports legacy clients like Kilo Code that don't send proper Accept headers
+  - Resolves "SSE error: Non-200 status code (406)" connection failures
+
+- **Transport Cleanup Stack Overflow**: Fixed infinite recursion in cleanup handlers
+  - Added cleanup guard flags to prevent circular cleanup calls
+  - Issue occurred when `cleanup()` → `server.close()` → `transport.close()` → `onclose` → `cleanup()` created infinite loop
+  - Affected both SSE and Streamable HTTP transports during graceful shutdown
+  - Resolves "RangeError: Maximum call stack size exceeded" errors on client disconnect
+
+- **MCP Server Logging**: Improved stderr logging level for MCP server output
+  - Changed MCP server stderr output from `warn` to `debug` level
+  - Prevents normal informational messages from appearing as warnings
+  - Improves log clarity by distinguishing between actual warnings and routine server output
+
 ## [5.0.2] - 2025-10-10
 
 ### Fixed

@@ -475,42 +475,65 @@ export class MCPServerEndpoint {
    * Handle SSE transport creation (GET /mcp)
    */
   async handleSSEConnection(req, res) {
+    logger.debug('handleSSEConnection called', {
+      url: req.url,
+      headers: req.headers,
+      method: req.method
+    });
 
-    // Create SSE transport
-    const transport = new SSEServerTransport('/messages', res);
-    const sessionId = transport.sessionId;
+    try {
+      // Create SSE transport
+      logger.debug('Creating SSE transport');
+      const transport = new SSEServerTransport('/messages', res);
+      const sessionId = transport.sessionId;
+      logger.debug('SSE transport created', { sessionId });
 
-    // Create a new server instance for this connection
-    const server = this.createServer();
+      // Create a new server instance for this connection
+      const server = this.createServer();
+      logger.debug('Server instance created for SSE connection');
 
-    // Store transport and server together
-    this.clients.set(sessionId, { transport, server });
+      // Store transport and server together
+      this.clients.set(sessionId, { transport, server });
 
-    let clientInfo
+      let clientInfo
+      let cleanupCalled = false;
 
 
-    // Setup cleanup on close
-    const cleanup = async () => {
-      this.clients.delete(sessionId);
-      try {
-        await server.close();
-      } catch (error) {
-        logger.warn(`Error closing server connected to ${clientInfo?.name ?? "Unknown"}: ${error.message}`);
-      } finally {
-        logger.info(`'${clientInfo?.name ?? "Unknown"}' client disconnected from MCP HUB`);
+      // Setup cleanup on close
+      const cleanup = async () => {
+        if (cleanupCalled) return;
+        cleanupCalled = true;
+
+        this.clients.delete(sessionId);
+        try {
+          await server.close();
+        } catch (error) {
+          logger.warn(`Error closing server connected to ${clientInfo?.name ?? "Unknown"}: ${error.message}`);
+        } finally {
+          logger.info(`'${clientInfo?.name ?? "Unknown"}' client disconnected from MCP HUB`);
+        }
+      };
+
+      res.on("close", cleanup);
+      transport.onclose = cleanup;
+
+      // Connect MCP server to transport
+      logger.debug('Connecting server to SSE transport');
+      await server.connect(transport);
+      logger.debug('Server connected to SSE transport successfully');
+
+      server.oninitialized = () => {
+        clientInfo = server.getClientVersion()
+        if (clientInfo) {
+          logger.info(`'${clientInfo.name}' client connected to MCP HUB`)
+        }
       }
-    };
-
-    res.on("close", cleanup);
-    transport.onclose = cleanup;
-
-    // Connect MCP server to transport
-    await server.connect(transport);
-    server.oninitialized = () => {
-      clientInfo = server.getClientVersion()
-      if (clientInfo) {
-        logger.info(`'${clientInfo.name}' client connected to MCP HUB`)
-      }
+    } catch (error) {
+      logger.error('SSE_CONNECTION_ERROR', 'Error in handleSSEConnection', {
+        error: error.message,
+        stack: error.stack
+      });
+      throw error;
     }
   }
 
@@ -550,19 +573,30 @@ export class MCPServerEndpoint {
    * Supports both POST and GET requests on a single endpoint
    */
   async handleStreamableHTTP(req, res) {
+    logger.debug('handleStreamableHTTP called', {
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
+      sessionId: req.headers['mcp-session-id'] || 'none'
+    });
+
     try {
       // Check if this is for an existing session
       const sessionId = req.headers['mcp-session-id'];
 
       if (sessionId) {
+        logger.debug('Session ID found in request', { sessionId });
         // Reuse existing transport for this session
         const clientInfo = this.clients.get(sessionId);
         if (clientInfo) {
+          logger.debug('Reusing existing session', { sessionId });
           await clientInfo.transport.handleRequest(req, res, req.body);
           return;
         }
         // Session not found - will create new one below
         logger.debug(`Session ${sessionId} not found, creating new session`);
+      } else {
+        logger.debug('No session ID in request, will create new session');
       }
 
       // Create new transport and server for new session
@@ -579,9 +613,13 @@ export class MCPServerEndpoint {
       const server = this.createServer();
 
       let clientInfo;
+      let cleanupCalled = false;
 
       // Setup cleanup for when transport closes
       const cleanup = async () => {
+        if (cleanupCalled) return;
+        cleanupCalled = true;
+
         if (transport.sessionId) {
           this.clients.delete(transport.sessionId);
         }
