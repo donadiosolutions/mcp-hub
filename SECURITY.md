@@ -1,6 +1,8 @@
 # Security Policy
 
-Donadio Solutions takes security reports seriously. If you believe you have found a vulnerability in any repository, service, package, infrastructure component, or other asset maintained by the Donadio Solutions organization (`@donadiosolutions`), please report it privately.
+Donadio Solutions takes security reports seriously. If you believe you have found a vulnerability in any repository,
+service, package, infrastructure component, or other asset maintained by the Donadio Solutions organization
+(`@donadiosolutions`), please report it privately.
 
 Please **do not open a public GitHub issue** for security vulnerabilities. Humanity has enough unforced errors already.
 
@@ -10,14 +12,16 @@ You may report security vulnerabilities using either of the following methods.
 
 ### Option 1: GitHub Private Vulnerability Reporting
 
-For repositories that support GitHub private vulnerability reporting, please use GitHub’s private security report feature:
+For repositories that support GitHub private vulnerability reporting, please use GitHub’s private security report
+feature:
 
 1. Open the affected repository on GitHub.
 2. Go to the **Security** tab.
 3. Select **Report a vulnerability**.
 4. Submit the report privately.
 
-This is the preferred method when available, since it keeps the report attached to the affected repository and allows coordinated handling through GitHub.
+This is the preferred method when available, since it keeps the report attached to the affected repository and allows
+coordinated handling through GitHub.
 
 ### Option 2: Encrypted Email
 
@@ -27,7 +31,7 @@ You may also send a GPG-encrypted report to:
 
 Please encrypt the message to the following subkey:
 
-`rsa4096/0x17EEA4FE99796826`
+`rsa4096/0x17EEA4FE99796826` <!-- gitleaks:allow -->
 
 This subkey belongs to the master key with fingerprint:
 
@@ -52,11 +56,13 @@ To help us validate and address the issue efficiently, please include as much of
 - Any known mitigations or workarounds.
 - Whether the vulnerability is already public or has been shared with anyone else.
 
-Please avoid including unnecessary personal data, secrets, credentials, production customer data, or destructive payloads.
+Please avoid including unnecessary personal data, secrets, credentials, production customer data, or destructive
+payloads.
 
 ## Scope
 
-This policy applies to software, infrastructure, documentation, packages, automation, and other assets maintained under the Donadio Solutions GitHub organization:
+This policy applies to software, infrastructure, documentation, packages, automation, and other assets maintained under
+the Donadio Solutions GitHub organization:
 
 `https://github.com/donadiosolutions`
 
@@ -73,17 +79,21 @@ After receiving a report, we will make a reasonable effort to:
 5. Coordinate disclosure when appropriate.
 6. Credit the reporter if desired and appropriate.
 
-Response times may vary depending on severity, complexity, and maintainer availability, but reports involving active exploitation, credential exposure, remote code execution, authentication bypass, or data exposure will be prioritized.
+Response times may vary depending on severity, complexity, and maintainer availability, but reports involving active
+exploitation, credential exposure, remote code execution, authentication bypass, or data exposure will be prioritized.
 
 ## Coordinated Disclosure
 
 Please allow reasonable time for investigation and remediation before publicly disclosing the issue.
 
-We ask that you do not publicly disclose the vulnerability, exploit details, or proof-of-concept code until we have had an opportunity to investigate and address the issue, unless there is an immediate public safety concern or active exploitation requiring broader notification.
+We ask that you do not publicly disclose the vulnerability, exploit details, or proof-of-concept code until we have had
+an opportunity to investigate and address the issue, unless there is an immediate public safety concern or active
+exploitation requiring broader notification.
 
 ## Safe Harbor
 
-We will not pursue legal action against researchers who make a good-faith effort to comply with this policy and who avoid:
+We will not pursue legal action against researchers who make a good-faith effort to comply with this policy and who
+avoid:
 
 - Accessing, modifying, or deleting data that does not belong to them.
 - Exfiltrating sensitive information beyond what is necessary to demonstrate impact.
@@ -98,4 +108,5 @@ Good-faith security research helps improve the ecosystem. Please keep it focused
 
 Security vulnerabilities should not be reported through public GitHub issues, discussions, pull requests, or comments.
 
-For non-security bugs, feature requests, documentation fixes, and general questions, use the normal public issue tracker for the affected repository.
+For non-security bugs, feature requests, documentation fixes, and general questions, use the normal public issue tracker
+for the affected repository.
